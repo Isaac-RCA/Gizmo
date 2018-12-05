@@ -1,0 +1,109 @@
+#include <Servo.h>
+int servoPin = 10;
+
+int servoIni = 170;
+int servoAngMove = 10;
+int servoAngNow = servoIni;
+int servoSpeed = 200;
+
+int servoStart = 0;
+int servoEnd = 190;
+Servo myservo;
+
+#define ROW_1 2
+#define ROW_2 3
+#define ROW_3 4
+#define ROW_4 5
+#define ROW_5 6
+#define ROW_6 7
+#define ROW_7 8
+#define ROW_8 9
+
+const byte rows[] = {
+  ROW_1, ROW_2, ROW_3, ROW_4, ROW_5, ROW_6, ROW_7, ROW_8
+};
+
+// The display buffer
+// It's prefilled with a smiling face (1 = ON, 0 = OFF)
+byte ALL[] = {B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111};
+byte EX[] = {B00000000, B00010000, B00010000, B00010000, B00010000, B00000000, B00010000, B00000000};
+byte A[] = {B00000000, B00111100, B01100110, B01100110, B01111110, B01100110, B01100110, B01100110};
+byte B[] = {B01111000, B01001000, B01001000, B01110000, B01001000, B01000100, B01000100, B01111100};
+byte C[] = {B00000000, B00011110, B00100000, B01000000, B01000000, B01000000, B00100000, B00011110};
+byte D[] = {B00000000, B00111000, B00100100, B00100010, B00100010, B00100100, B00111000, B00000000};
+byte E[] = {B00000000, B00111100, B00100000, B00111000, B00100000, B00100000, B00111100, B00000000};
+byte F[] = {B00000000, B00111100, B00100000, B00111000, B00100000, B00100000, B00100000, B00000000};
+byte G[] = {B00000000, B00111110, B00100000, B00100000, B00101110, B00100010, B00111110, B00000000};
+byte H[] = {B00000000, B00100100, B00100100, B00111100, B00100100, B00100100, B00100100, B00000000};
+byte I[] = {B00000000, B00111000, B00010000, B00010000, B00010000, B00010000, B00111000, B00000000};
+byte J[] = {B00000000, B00011100, B00001000, B00001000, B00001000, B00101000, B00111000, B00000000};
+byte K[] = {B00000000, B00100100, B00101000, B00110000, B00101000, B00100100, B00100100, B00000000};
+byte L[] = {B00000000, B00100000, B00100000, B00100000, B00100000, B00100000, B00111100, B00000000};
+byte M[] = {B00000000, B00000000, B01000100, B10101010, B10010010, B10000010, B10000010, B00000000};
+byte N[] = {B00000000, B00100010, B00110010, B00101010, B00100110, B00100010, B00000000, B00000000};
+byte O[] = {B00000000, B00111100, B01000010, B01000010, B01000010, B01000010, B00111100, B00000000};
+byte P[] = {B00000000, B00111000, B00100100, B00100100, B00111000, B00100000, B00100000, B00000000};
+byte Q[] = {B00000000, B00111100, B01000010, B01000010, B01000010, B01000110, B00111110, B00000001};
+byte R[] = {B00000000, B00111000, B00100100, B00100100, B00111000, B00100100, B00100100, B00000000};
+byte S[] = {B00000000, B00111100, B00100000, B00111100, B00000100, B00000100, B00111100, B00000000};
+byte T[] = {B00000000, B01111100, B00010000, B00010000, B00010000, B00010000, B00010000, B00000000};
+byte U[] = {B00000000, B01000010, B01000010, B01000010, B01000010, B00100100, B00011000, B00000000};
+byte V[] = {B00000000, B00100010, B00100010, B00100010, B00010100, B00010100, B00001000, B00000000};
+byte W[] = {B00000000, B10000010, B10010010, B01010100, B01010100, B00101000, B00000000, B00000000};
+byte X[] = {B00000000, B01000010, B00100100, B00011000, B00011000, B00100100, B01000010, B00000000};
+byte Y[] = {B00000000, B01000100, B00101000, B00010000, B00010000, B00010000, B00010000, B00000000};
+byte Z[] = {B00000000, B00111100, B00000100, B00001000, B00010000, B00100000, B00111100, B00000000};
+
+float timeCount = 0;
+
+void setup() {
+  // Open serial port
+  Serial.begin(9600); 
+
+  myservo.attach(servoPin);
+  myservo.write(servoIni);
+  
+  // Set all used pins to OUTPUT
+  for (byte i = 2; i <= 9; i++) {
+    pinMode(i, OUTPUT);
+  }
+  
+}
+
+void loop() {
+  servoAngNow = servoIni;
+  myservo.write(servoAngNow);  
+  drawScreen(R);
+  delay(1000);
+}
+void  drawScreen(byte buffer2[]) {  
+  // Turn on each row in series
+
+  for (int i = 0 ; i < 8 ; i++) {
+    
+    Serial.print("buffer2[");
+    Serial.print(i);
+    Serial.print("]: ");
+    Serial.println( buffer2[i], BIN);
+    
+    Serial.println("----------");
+    for (int j = 0 ; j < 8 ; j++) {
+      int temp = (buffer2[i] >> (7-j)) & 0x01;
+      
+      Serial.print("temp[");
+      Serial.print(j);
+      Serial.print("]: ");
+      Serial.println(temp);
+      
+      digitalWrite(rows[j], temp);
+    }
+    
+    servoAngNow -= servoAngMove;
+    Serial.println(servoAngNow);
+    myservo.write(servoAngNow);
+    
+    //Serial.println("");
+    //Serial.println("----------");
+  }
+  //Serial.println("finish");
+}
